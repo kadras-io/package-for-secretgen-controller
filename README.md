@@ -1,0 +1,1 @@
+# package-for-secretgen-controller
