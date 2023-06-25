@@ -1,0 +1,13 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - githubRelease:
+      disableAutoChecksumValidation: true
+      slug: carvel-dev/secretgen-controller
+      tag: v0.14.8
+    includePaths:
+    - release.yml
+    path: .
+  path: config/upstream
+kind: Config
+minimumRequiredVersion: 0.32.0
