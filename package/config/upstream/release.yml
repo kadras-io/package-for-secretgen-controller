@@ -44,6 +44,32 @@ spec:
             type: object
           spec:
             properties:
+              dangerousToNamespacesSelector:
+                items:
+                  properties:
+                    key:
+                      description: Property to target the resource for the match.
+                        It supports dot notation.
+                      type: string
+                    operator:
+                      description: Type of comparison.
+                      enum:
+                      - In
+                      - NotIn
+                      - Exists
+                      - DoesNotExist
+                      type: string
+                    values:
+                      description: Values to match on the resource key using the comparison
+                        operator.
+                      items:
+                        type: string
+                      type: array
+                  required:
+                  - key
+                  - operator
+                  type: object
+                type: array
               toNamespace:
                 type: string
               toNamespaces:
@@ -775,11 +801,11 @@ metadata:
         - git:
             dirty: true
             remoteURL: https://github.com/carvel-dev/secretgen-controller
-            sha: 62cd6a7a3b321fc064a9a07bbaed1c5df24cf117
+            sha: 55445d7aa286b254c45d05f9e56975e41aaaf8fd
             tags:
-            - v0.14.10
-        url: ghcr.io/carvel-dev/secretgen-controller@sha256:165b1f6b1185a1eb2238bc7b606f990d62414a1366124a59af89708f5806337d
-    secretgen-controller.carvel.dev/version: v0.14.10
+            - v0.15.0
+        url: ghcr.io/carvel-dev/secretgen-controller@sha256:200e683e070e5be1e3c6aef6b9720d2490e1b61c35e58d751546afac5183e888
+    secretgen-controller.carvel.dev/version: v0.15.0
   name: secretgen-controller
   namespace: secretgen-controller
 spec:
@@ -794,7 +820,7 @@ spec:
         app: secretgen-controller
     spec:
       containers:
-      - image: ghcr.io/carvel-dev/secretgen-controller@sha256:165b1f6b1185a1eb2238bc7b606f990d62414a1366124a59af89708f5806337d
+      - image: ghcr.io/carvel-dev/secretgen-controller@sha256:200e683e070e5be1e3c6aef6b9720d2490e1b61c35e58d751546afac5183e888
         name: secretgen-controller
         resources:
           requests:
