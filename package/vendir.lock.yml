@@ -2,8 +2,8 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - githubRelease:
-      tag: v0.18.1
-      url: https://api.github.com/repos/carvel-dev/secretgen-controller/releases/173333252
+      tag: v0.19.1
+      url: https://api.github.com/repos/carvel-dev/secretgen-controller/releases/200328062
     path: .
   path: config/upstream
 kind: LockConfig

@@ -801,11 +801,11 @@ metadata:
         - git:
             dirty: true
             remoteURL: https://github.com/carvel-dev/secretgen-controller
-            sha: 68b24ef15860067c808073cca623f1517898add8
+            sha: f79507d39bdb9c57047b143e6e29dbdc95a482c3
             tags:
-            - v0.18.1
-        url: ghcr.io/carvel-dev/secretgen-controller@sha256:8cbe11222a7e69af54aa34acf00419eac74660c765615909a18f24f77698d1a4
-    secretgen-controller.carvel.dev/version: v0.18.1
+            - v0.19.1
+        url: ghcr.io/carvel-dev/secretgen-controller@sha256:35d97c76c1f0b4b2915fc6672a1f40b895181d52cc13562098e916fa55f3ff7a
+    secretgen-controller.carvel.dev/version: v0.19.1
   name: secretgen-controller
   namespace: secretgen-controller
 spec:
@@ -820,7 +820,7 @@ spec:
         app: secretgen-controller
     spec:
       containers:
-      - image: ghcr.io/carvel-dev/secretgen-controller@sha256:8cbe11222a7e69af54aa34acf00419eac74660c765615909a18f24f77698d1a4
+      - image: ghcr.io/carvel-dev/secretgen-controller@sha256:35d97c76c1f0b4b2915fc6672a1f40b895181d52cc13562098e916fa55f3ff7a
         name: secretgen-controller
         resources:
           requests:
