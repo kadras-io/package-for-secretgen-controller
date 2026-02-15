@@ -79,7 +79,7 @@ tasks:
   test:config:
     desc: Check the ytt-annotated Kubernetes configuration and its validation
     cmds:
-      - helm template cert-manager-webhook-hetzner package/config/helm/upstream/cert-manager-webhook-hetzner -f package/config/helm/values.yml | ytt -f- -f package/config/carvel | kubeconform -ignore-missing-schemas -summary
+      - ytt -f package/config | kubeconform -ignore-missing-schemas -summary
 
   test:integration:
     desc: Run package integration tests
