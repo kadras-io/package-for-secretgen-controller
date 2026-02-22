@@ -4,7 +4,7 @@ directories:
   - githubRelease:
       disableAutoChecksumValidation: true
       slug: carvel-dev/secretgen-controller
-      tag: v0.20.0
+      tag: v0.20.1
     includePaths:
     - release.yml
     path: .
