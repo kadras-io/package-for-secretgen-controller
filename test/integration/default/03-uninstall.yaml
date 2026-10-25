@@ -1,0 +1,14 @@
+---
+# The package is deleted with kapp, as kapp-controller does when deleting the PackageInstall:
+# `kctrl dev --delete` doesn't delete the resources of a local installation.
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+  - apiVersion: v1
+    kind: Namespace
+    name: sharing-source
+  - apiVersion: v1
+    kind: Namespace
+    name: sharing-target
+commands:
+  - script: kapp delete -a secretgen-controller.app -n tests -y

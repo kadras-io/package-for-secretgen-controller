@@ -3,16 +3,14 @@ kind: PackageBuild
 metadata:
   name: secretgen-controller.packages.kadras.io
 spec:
+  release:
+  - resource: {}
   template:
     spec:
       app:
         spec:
           deploy:
-          - kapp:
-              rawOptions:
-              - --wait-timeout=5m
-              - --kube-api-qps=50
-              - --kube-api-burst=100
+          - kapp: {}
           template:
           - ytt:
               paths:

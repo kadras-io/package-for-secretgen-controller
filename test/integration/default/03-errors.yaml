@@ -1,0 +1,12 @@
+# The CRDs are deleted with the package, together with the resources and the Secrets they own.
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: passwords.secretgen.k14s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secretgen-controller
+  namespace: secretgen-controller

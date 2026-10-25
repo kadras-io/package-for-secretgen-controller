@@ -1,0 +1,41 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/lib/secretgen_controller.star", "container", "deployment", "metrics_port")
+
+#! The controller exposes metrics in the Prometheus format on port 8080 (`/metrics`), but the upstream manifest
+#! neither declares the port nor annotates the Pod for Prometheus scraping. When the metrics are disabled,
+#! the metrics server is turned off. The controller logs in JSON, and its log level isn't configurable.
+#! See: https://book.kubebuilder.io/reference/metrics
+
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata":{"name":deployment}})
+---
+spec:
+  template:
+#@ if data.values.observability.metrics.enabled:
+    metadata:
+      #@overlay/match missing_ok=True
+      annotations:
+        #@overlay/match missing_ok=True
+        prometheus.io/scrape: "true"
+        #@overlay/match missing_ok=True
+        prometheus.io/port: #@ str(metrics_port())
+        #@overlay/match missing_ok=True
+        prometheus.io/path: /metrics
+    spec:
+      containers:
+        #@overlay/match by="name"
+        - name: #@ container
+          #@overlay/match missing_ok=True
+          ports:
+            - name: metrics
+              containerPort: #@ metrics_port()
+              protocol: TCP
+#@ else:
+    spec:
+      containers:
+        #@overlay/match by="name"
+        - name: #@ container
+          #@overlay/match missing_ok=True
+          args:
+            - -metrics-bind-address=0
+#@ end

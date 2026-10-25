@@ -2,5 +2,47 @@
 apiVersion: v1
 kind: Secret
 metadata:
+  name: password-test
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: rsa-key-test
 type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ssh-key-test
+type: kubernetes.io/ssh-auth
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: root-ca-test
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: certificate-test
+type: kubernetes.io/tls
+---
+# The generated values are random, so only their presence is checked.
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  - script: |
+      set -e
+      key() { test -n "$(kubectl get secret "$1" -n "$NAMESPACE" -o jsonpath="{.data.$2}")"; }
+      key password-test username
+      key password-test password
+      key rsa-key-test pub\\.pem
+      key rsa-key-test key\\.pem
+      key ssh-key-test ssh-privatekey
+      key ssh-key-test ssh-authorizedkey
+      key root-ca-test crt\\.pem
+      key certificate-test tls\\.crt
+      key certificate-test tls\\.key
+      test "$(kubectl get secret password-test -n "$NAMESPACE" -o jsonpath='{.data.password}' | base64 -d | wc -c | tr -d ' ')" = 32

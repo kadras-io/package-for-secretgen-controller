@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: secretgen-controller-default-deny-ingress
+  namespace: secretgen-controller
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  (ingress == null): true
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: secretgen-controller-allow-metrics
+  namespace: secretgen-controller
+spec:
+  podSelector:
+    matchLabels:
+      app: secretgen-controller
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 8080

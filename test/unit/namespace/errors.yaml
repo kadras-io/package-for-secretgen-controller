@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secretgen-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: secretgen-controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: secretgen-controller

@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secretgen-controller
+  namespace: secretgen-controller
+spec:
+  template:
+    (metadata.annotations == null): true
+    spec:
+      (containers[?name == 'secretgen-controller'] | [0]):
+        args:
+        - -metrics-bind-address=0
+        (ports == null): true

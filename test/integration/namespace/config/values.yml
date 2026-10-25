@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secretgen-controller-values
+  namespace: tests
+stringData:
+  values.yaml: |
+    namespace: secrets
+    observability:
+      metrics:
+        enabled: false
+    security:
+      network_policies: true

@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secretgen-controller
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: secretgen-controller-sa
+  namespace: secretgen-controller
+automountServiceAccountToken: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secretgen-controller
+  namespace: secretgen-controller
+spec:
+  replicas: 1
+  # A single controller at a time, since there's no leader election.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: /metrics
+    spec:
+      serviceAccountName: secretgen-controller-sa
+      (serviceAccount == null): true
+      priorityClassName: system-cluster-critical
+      automountServiceAccountToken: false
+      (containers[?name == 'secretgen-controller'] | [0]):
+        (args == null): true
+        ports:
+        - name: metrics
+          containerPort: 8080
+        volumeMounts:
+        - name: serviceaccount-token
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
+      (volumes[?name == 'serviceaccount-token'] | [0]):
+        projected:
+          (sources[0].serviceAccountToken.expirationSeconds): 3607
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: secretgen-controller-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: secretgen-controller-sa
+  namespace: secretgen-controller

@@ -1,0 +1,15 @@
+# Custom namespace, without metrics and with network policies.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secretgen-controller
+  namespace: secrets
+status:
+  readyReplicas: 1
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: secretgen-controller-default-deny-ingress
+  namespace: secrets

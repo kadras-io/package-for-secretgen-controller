@@ -1,0 +1,28 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("/lib/secretgen_controller.star", "deployment")
+
+#! secretgen-controller doesn't support leader election, so a single replica can run at a time.
+#! The rolling update stops the old Pod before starting the new one, so that two controllers
+#! never reconcile the same resources at once (same as the defaults of the upstream package).
+#! The controller is critical for the workloads relying on the Secrets it generates and shares,
+#! so it's scheduled with a high priority, preempting less important Pods if needed.
+#! The deprecated `serviceAccount` field is replaced with `serviceAccountName`.
+#! See: https://github.com/carvel-dev/secretgen-controller/blob/develop/config/package-bundle/config/values-schema.yml
+
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata":{"name":deployment}})
+---
+spec:
+  #@overlay/match missing_ok=True
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    spec:
+      #@overlay/remove
+      serviceAccount:
+      #@overlay/match missing_ok=True
+      serviceAccountName: secretgen-controller-sa
+      #@overlay/match missing_ok=True
+      priorityClassName: system-cluster-critical

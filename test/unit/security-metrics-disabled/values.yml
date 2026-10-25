@@ -1,0 +1,7 @@
+#! Without metrics, no inbound traffic is allowed.
+---
+observability:
+  metrics:
+    enabled: false
+security:
+  network_policies: true

@@ -1,0 +1,8 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secretgen-controller
+  namespace: secretgen-controller
+status:
+  readyReplicas: 1

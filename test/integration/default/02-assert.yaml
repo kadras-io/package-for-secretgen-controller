@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: shared-credentials
+  namespace: sharing-target
+data:
+  password: czNjcjN0
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: database-url
+  namespace: sharing-source
+data:
+  host: cG9zdGdyZXMua2FkcmFzLmlv
+  password: czNjcjN0
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  - script: |
+      set -e
+      kubectl get secret image-pull-secret -n sharing-target -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d \
+        | grep -q '"registry.kadras.io"'

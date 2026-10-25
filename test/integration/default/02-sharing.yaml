@@ -1,0 +1,88 @@
+# Secrets shared from the sharing-source namespace to the sharing-target namespace
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sharing-source
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sharing-target
+
+# SecretExport and SecretImport
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: shared-credentials
+  namespace: sharing-source
+stringData:
+  password: s3cr3t
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: shared-credentials
+  namespace: sharing-source
+spec:
+  toNamespace: sharing-target
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: shared-credentials
+  namespace: sharing-target
+spec:
+  fromNamespace: sharing-source
+
+# Placeholder Secret, filled with the exported registry credentials
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-credentials
+  namespace: sharing-source
+type: kubernetes.io/dockerconfigjson
+stringData:
+  .dockerconfigjson: |
+    {"auths":{"registry.kadras.io":{"username":"kadras","password":"s3cr3t"}}}
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: registry-credentials
+  namespace: sharing-source
+spec:
+  toNamespace: sharing-target
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: image-pull-secret
+  namespace: sharing-target
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+
+# SecretTemplate, composing a Secret from another one
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretTemplate
+metadata:
+  name: database-url
+  namespace: sharing-source
+spec:
+  inputResources:
+    - name: credentials
+      ref:
+        apiVersion: v1
+        kind: Secret
+        name: shared-credentials
+  template:
+    stringData:
+      host: postgres.kadras.io
+    data:
+      password: $(.credentials.data.password)

@@ -1,0 +1,28 @@
+#@ load("/lib/validation.star", "is_dns_label")
+
+#@data/values-schema
+---
+
+#@schema/desc "The namespace in which to deploy secretgen-controller."
+#@schema/validation ("a valid DNS label", is_dns_label)
+namespace: secretgen-controller
+
+#! =============================================
+#! Observability
+#! =============================================
+
+#@schema/desc "Settings for the observability of secretgen-controller."
+observability:
+  #@schema/desc "Settings for the metrics."
+  metrics:
+    #@schema/desc "Whether the controller exposes metrics in the Prometheus format on port 8080 (`/metrics`), and its Pod is annotated for Prometheus scraping. When false, the metrics server is disabled."
+    enabled: true
+
+#! =============================================
+#! Security
+#! =============================================
+
+#@schema/desc "Settings for the security of secretgen-controller."
+security:
+  #@schema/desc "Whether to deny the inbound traffic to the controller Pod, except for the metrics scraping. See https://kubernetes.io/docs/concepts/services-networking/network-policies."
+  network_policies: false

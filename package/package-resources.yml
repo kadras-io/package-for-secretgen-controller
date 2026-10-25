@@ -11,11 +11,7 @@ spec:
   template:
     spec:
       deploy:
-      - kapp:
-          rawOptions:
-          - --wait-timeout=5m
-          - --kube-api-qps=50
-          - --kube-api-burst=100
+      - kapp: {}
       fetch:
       - git: {}
       template:
@@ -24,7 +20,7 @@ spec:
           - config
       - kbld: {}
   valuesSchema:
-    openAPIv3: null
+    openAPIv3: {}
   version: 0.0.0
 
 ---

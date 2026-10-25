@@ -1,0 +1,54 @@
+# Password
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Password
+metadata:
+  name: password-test
+spec:
+  length: 32
+  digits: 4
+  secretTemplate:
+    type: Opaque
+    stringData:
+      username: admin
+      password: $(value)
+
+# RSA Key
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: RSAKey
+metadata:
+  name: rsa-key-test
+spec: {}
+
+# SSH Key
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: SSHKey
+metadata:
+  name: ssh-key-test
+spec: {}
+
+# Certificates: a root CA signing a leaf certificate, stored as a TLS Secret
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: root-ca-test
+spec:
+  isCA: true
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: certificate-test
+spec:
+  caRef:
+    name: root-ca-test
+  alternativeNames:
+    - test.kadras.io
+  secretTemplate:
+    type: kubernetes.io/tls
+    stringData:
+      tls.crt: $(certificate)
+      tls.key: $(privateKey)

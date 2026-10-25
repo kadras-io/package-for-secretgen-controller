@@ -1,0 +1,109 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/lib/secretgen_controller.star", "controller_selector", "deployment", "metrics_port")
+
+#! =============================================
+#! Pod Security Standards
+#! =============================================
+
+#! The controller complies with the "restricted" Pod Security Standard, enforced on the package namespace.
+#! See: https://kubernetes.io/docs/concepts/security/pod-security-standards/
+
+#@overlay/match by=overlay.subset({"kind":"Namespace"})
+---
+metadata:
+  #@overlay/match missing_ok=True
+  labels:
+    #@overlay/match missing_ok=True
+    pod-security.kubernetes.io/enforce: restricted
+    #@overlay/match missing_ok=True
+    pod-security.kubernetes.io/audit: restricted
+    #@overlay/match missing_ok=True
+    pod-security.kubernetes.io/warn: restricted
+
+#! =============================================
+#! Service Account Tokens
+#! =============================================
+
+#! The service account token isn't auto-mounted. Instead, the controller mounts a projected token
+#! with a short expiration, which the kubelet rotates.
+#! See: https://kubernetes.io/docs/concepts/security/service-accounts/#assign-to-pod
+
+#@overlay/match by=overlay.subset({"kind":"ServiceAccount"}), expects=1
+---
+#@overlay/match missing_ok=True
+automountServiceAccountToken: false
+
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata":{"name":deployment}})
+---
+spec:
+  template:
+    #@overlay/match-child-defaults missing_ok=True
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        #@overlay/match by=overlay.all
+        - volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: serviceaccount-token
+              readOnly: true
+      volumes:
+        - name: serviceaccount-token
+          projected:
+            defaultMode: 0444
+            sources:
+            - serviceAccountToken:
+                expirationSeconds: 3607
+                path: token
+            - configMap:
+                name: kube-root-ca.crt
+                items:
+                - key: ca.crt
+                  path: ca.crt
+            - downwardAPI:
+                items:
+                - path: namespace
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.namespace
+
+#! =============================================
+#! Network Policies
+#! =============================================
+
+#! Deny the inbound traffic to the controller Pod, except for the metrics scraping when the metrics are enabled.
+#! The source of the scraping isn't known in advance, so it's allowed from anywhere: restrict it with a ytt overlay.
+#! The controller doesn't receive any other traffic, since it has no webhooks. The outbound traffic isn't restricted,
+#! but the controller only needs to reach the Kubernetes API server.
+#! See: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+
+#@ if data.values.security.network_policies:
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: secretgen-controller-default-deny-ingress
+  namespace: #@ data.values.namespace
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+
+#@ if data.values.observability.metrics.enabled:
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: secretgen-controller-allow-metrics
+  namespace: #@ data.values.namespace
+spec:
+  podSelector:
+    matchLabels: #@ controller_selector()
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: #@ metrics_port()
+#@ end
+#@ end
