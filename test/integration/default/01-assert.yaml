@@ -46,3 +46,10 @@ commands:
       key certificate-test tls\\.crt
       key certificate-test tls\\.key
       test "$(kubectl get secret password-test -n "$NAMESPACE" -o jsonpath='{.data.password}' | base64 -d | wc -c | tr -d ' ')" = 32
+  # The `edit` role manages the resources, and the `view` role reads them.
+  - script: test "$(kubectl auth can-i create passwords.secretgen.k14s.io -n $NAMESPACE --as=developer)" = yes
+  - script: test "$(kubectl auth can-i delete passwords.secretgen.k14s.io -n $NAMESPACE --as=developer)" = yes
+  - script: test "$(kubectl auth can-i list passwords.secretgen.k14s.io -n $NAMESPACE --as=viewer)" = yes
+  - script: test "$(kubectl auth can-i create passwords.secretgen.k14s.io -n $NAMESPACE --as=viewer)" = no
+  - script: test "$(kubectl auth can-i list secretexports.secretgen.carvel.dev -n $NAMESPACE --as=developer)" = yes
+  - script: test "$(kubectl auth can-i create secretexports.secretgen.carvel.dev -n $NAMESPACE --as=developer)" = no

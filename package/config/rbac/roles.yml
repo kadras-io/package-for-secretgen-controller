@@ -1,0 +1,49 @@
+#! The permissions on the secretgen-controller resources, added to the Kubernetes default roles via aggregation, so that the
+#! users bound to `admin`, `edit`, or `view` in a namespace can use them there. `view` is included in `edit`,
+#! and `edit` in `admin`. The resources are listed explicitly, so that new ones are granted deliberately.
+#! See: https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles
+
+#! The Secrets generated in the namespace, and the ones imported from other namespaces. SecretExports share the Secrets of the namespace with other namespaces, so only `admin` can manage them.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secretgen-controller-edit
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+rules:
+  - apiGroups: ["secretgen.k14s.io"]
+    resources: ["passwords", "certificates", "rsakeys", "sshkeys"]
+    verbs: ["create", "delete", "deletecollection", "patch", "update"]
+  - apiGroups: ["secretgen.carvel.dev"]
+    resources: ["secrettemplates", "secretimports"]
+    verbs: ["create", "delete", "deletecollection", "patch", "update"]
+
+#! Only the administrators of a namespace share its Secrets with other namespaces.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secretgen-controller-admin
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups: ["secretgen.carvel.dev"]
+    resources: ["secretexports"]
+    verbs: ["create", "delete", "deletecollection", "patch", "update"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secretgen-controller-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  - apiGroups: ["secretgen.k14s.io"]
+    resources: ["passwords", "certificates", "rsakeys", "sshkeys"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["secretgen.carvel.dev"]
+    resources: ["secrettemplates", "secretimports", "secretexports"]
+    verbs: ["get", "list", "watch"]

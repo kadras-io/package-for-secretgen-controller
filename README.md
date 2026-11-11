@@ -14,6 +14,7 @@ A Carvel package for [secretgen-controller](https://github.com/carvel-dev/secret
 * **Secret sharing**. Secrets exported from a namespace and imported into others, image pull secrets filled with the exported registry credentials, and Secrets composed from other resources.
 * **Observability**. Prometheus metrics.
 * **Security**. The controller complies with the `restricted` [Pod Security Standard](https://kubernetes.io/docs/concepts/security/pod-security-standards/), uses a short-lived service account token, and can be isolated with network policies.
+* **Access**. The Kubernetes default roles are extended with the secretgen-controller resources: `edit` and `admin` manage the Secrets generated and imported in a namespace, while sharing them with other namespaces via SecretExports is reserved to `admin`. `view` reads them. See [docs/rbac.md](docs/rbac.md).
 
 ## 🚀&nbsp; Getting Started
 
@@ -103,6 +104,7 @@ Features:
 * [Availability](docs/availability.md)
 * [Observability](docs/observability.md)
 * [Security](docs/security.md)
+* [Access to the resources](docs/rbac.md)
 
 Operations:
 

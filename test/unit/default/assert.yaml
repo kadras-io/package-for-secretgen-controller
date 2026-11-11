@@ -59,3 +59,27 @@ subjects:
 - kind: ServiceAccount
   name: secretgen-controller-sa
   namespace: secretgen-controller
+
+---
+# The secretgen-controller resources are added to the Kubernetes default roles.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secretgen-controller-edit
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secretgen-controller-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secretgen-controller-admin
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
